@@ -10,13 +10,17 @@ public class Jogo implements Serializable {
     private Jogador jogador2;
     private Jogador jogadorAtual;
     private Casa casaSelecionada;
+    private boolean modoBot;
+    private boolean modoBotDificil;
 
-    public Jogo() {
+    public Jogo(Jogador j1, Jogador j2, boolean modoBot, boolean modoBotDificil) {
         this.tabuleiro = new Tabuleiro();
-        this.jogador1 = new Jogador("Player 1", "branco");
-        this.jogador2 = new Jogador("Player 2", "preto");
-        this.jogadorAtual = jogador1;
+        this.jogador1 = j1;
+        this.jogador2 = j2;
+        this.jogadorAtual = j1;
         this.casaSelecionada = null;
+        this.modoBot = modoBot;
+        this.modoBotDificil = modoBotDificil;
     }
 
     public boolean selecionar(int linha, int coluna) {
@@ -34,6 +38,19 @@ public class Jogo implements Serializable {
             mover(casaSelecionada, casa);
             casaSelecionada = null;
             trocarTurno();
+
+            // se é modo bot e agora é a vez do bot, ele joga automaticamente
+            if (modoBot && jogadorAtual == jogador2) {
+                if (modoBotDificil) {
+                    BotMinimax bot = (BotMinimax) jogador2;
+                    bot.jogarDificil(this);
+                } else {
+                    Bot bot = (Bot) jogador2;
+                    bot.jogarFacil(this);
+                }
+                trocarTurno();
+            }
+
             return true;
         }
 
@@ -53,4 +70,6 @@ public class Jogo implements Serializable {
     public Tabuleiro getTabuleiro() { return tabuleiro; }
     public Jogador getJogadorAtual() { return jogadorAtual; }
     public Casa getCasaSelecionada() { return casaSelecionada; }
+    public boolean isModoBot() { return modoBot; }
+    public boolean isModoBotDificil() { return modoBotDificil; }
 }
